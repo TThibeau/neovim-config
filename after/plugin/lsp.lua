@@ -15,7 +15,7 @@ local lsp_attach = function(client, bufnr)
 	vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
 	vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
 	vim.keymap.set({ 'n', 'x' }, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-	vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+	vim.keymap.set('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
 end
 
 lsp_zero.extend_lspconfig({
@@ -29,7 +29,7 @@ require('mason').setup({})
 require('mason-lspconfig').setup({
 
 	--- First, make sure they are installed in neovim using Mason:
-	ensure_installed = { 'clangd', 'lua_ls' },
+	ensure_installed = { 'clangd', 'lua_ls', 'cmake' },
 
 	--- Second, make sure they are configured correctly using custom handlers in mason-lspconfig:
 	handlers = {
@@ -43,6 +43,10 @@ require('mason-lspconfig').setup({
 		------ ln -s /path/to/myproject/build/compile_commands.json /path/to/myproject/
 		clangd = function()
 			require('lspconfig').clangd.setup({
+				cmd = { 'clangd', '--background-index', '--clang-tidy', '--log=verbose' },
+				init_options = {
+					fallbackFlags = { '-std=c++17' },
+				},
 				on_attach = function(client, bufnr)
 					print('clangd on_attach called')
 				end
@@ -56,6 +60,19 @@ require('mason-lspconfig').setup({
 				end
 			})
 		end,
+
+		cmake = function()
+			require('lspconfig').cmake.setup({
+				cmd = { 'cmake-language-server' },
+				filetypes = { 'cmake' },
+				on_attach = function(client, bufnr)
+					print('cmake on_attach called')
+				end,
+				init_options = {
+					buildDirectory = "build/"
+				},
+			})
+		end
 	}
 })
 
@@ -70,6 +87,7 @@ lsp_zero.format_on_save({
 	servers = {
 		['clangd'] = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
 		['lua_ls'] = { 'lua' },
+		['cmake'] = { 'cmake' },
 	}
 })
 
@@ -88,5 +106,7 @@ cmp.setup({
 			vim.snippet.expand(args.body)
 		end,
 	},
-	mapping = cmp.mapping.preset.insert({}),
+	mapping = cmp.mapping.preset.insert({
+		['<Tab>'] = cmp.mapping.confirm { select = true },
+	}),
 })

@@ -6,9 +6,9 @@ vim.opt.relativenumber = true -- relative line numbers
 
 -- Set vim indentation to a default of 4
 -- (will be overwritten by format on save of LSP)
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.shiftwidth = 2
 
 vim.opt.wrap = false       -- Disable line wrapping
 
